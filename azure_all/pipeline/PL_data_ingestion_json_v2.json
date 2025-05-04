@@ -1,0 +1,92 @@
+{
+	"name": "PL_data_ingestion_json_v2",
+	"properties": {
+		"description": "Ingest Webstore online sales data into the datalake",
+		"activities": [
+			{
+				"name": "Copy_Web_store_online_sales_data",
+				"description": "Copy Online Sales Data from the Web store and ingest into Data Lake",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_adls_data_engineering_json",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_dl_online_sales_json",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Send Email",
+				"description": "Send Email Notification",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy_Web_store_online_sales_data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"url": "https://prod-17.centralindia.logic.azure.com:443/workflows/5862856b89174a69be2aed414ac88c90/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=zPwLx-9moYwmJPBVyeWhbX3jbWNAkbtb83dBGzZIFLk",
+					"body": {
+						"value": "@json(concat('{\n    \"emailAddress\": \"anishrock213@gmail.com\",\n    \"subject\": \"ADF pipeline (PL_data_ingestion_json)\",\n    \"messageBody\": \"Ingestion of Web store Data into Data Lake has compleated successfully\"\n}'))",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-05-02T16:56:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

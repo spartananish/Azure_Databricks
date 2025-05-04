@@ -1,0 +1,93 @@
+{
+	"name": "DS_adls_data_engineering_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_abls_buyalot_webstore",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "webstore"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "onlinesales.json",
+				"container": "sales"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"SalesOrderNumber": {
+					"type": "string"
+				},
+				"SalesOrderLineNumber": {
+					"type": "integer"
+				},
+				"RevisionNumber": {
+					"type": "integer"
+				},
+				"OrderQuantity": {
+					"type": "integer"
+				},
+				"ProductCode": {
+					"type": "string"
+				},
+				"PromotionsCode": {
+					"type": "integer"
+				},
+				"CurrencyCode": {
+					"type": "string"
+				},
+				"UnitPrice": {
+					"type": "number"
+				},
+				"ExtendedAmount": {
+					"type": "number"
+				},
+				"UnitPriceDiscountPct": {
+					"type": "number"
+				},
+				"DiscountAmount": {
+					"type": "number"
+				},
+				"ProductStandardCost": {
+					"type": "number"
+				},
+				"TotalProductCost": {
+					"type": "number"
+				},
+				"SalesAmount": {
+					"type": "number"
+				},
+				"TaxAmt": {
+					"type": "number"
+				},
+				"Freight": {
+					"type": "number"
+				},
+				"CustomerCode": {
+					"type": "string"
+				},
+				"Region": {
+					"type": "string"
+				},
+				"Country": {
+					"type": "string"
+				},
+				"OrderDate": {
+					"type": "string"
+				},
+				"DueDate": {
+					"type": "string"
+				},
+				"ShipDate": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

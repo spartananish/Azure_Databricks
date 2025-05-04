@@ -1,0 +1,9 @@
+{
+	"name": "ak-adf-dataingestion-dev-001",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9b30d963-e784-445f-afed-a529a8dbe892",
+		"tenantId": "a700ce57-0ced-43b3-97bf-89a0d14ae205"
+	}
+}

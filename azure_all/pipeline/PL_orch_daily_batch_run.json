@@ -1,0 +1,164 @@
+{
+	"name": "PL_orch_daily_batch_run",
+	"properties": {
+		"description": "Daily Batch run orchestration of ingestion pipeline",
+		"activities": [
+			{
+				"name": "Get Batch Run Details",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[GetBatch]",
+						"storedProcedureParameters": {
+							"PFrequency": {
+								"type": "String",
+								"value": {
+									"value": "@variables('v_frequency')",
+									"type": "Expression"
+								}
+							},
+							"PSystemCode": {
+								"type": "String",
+								"value": {
+									"value": "@variables('v_systemcode')",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_asql_batch_details",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach Batch Run Information",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Batch Run Details",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Batch Run Details').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Run Ingestion",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_data_ingestion_json_v6",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"systemCode": {
+										"value": "@variables('v_systemcode')",
+										"type": "Expression"
+									},
+									"datasetName": {
+										"value": "@item().DatasetName",
+										"type": "Expression"
+									},
+									"runID": {
+										"value": "@item().RunID",
+										"type": "Expression"
+									},
+									"snapshotDate": {
+										"value": "@item().snapshotDate",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set Batch Status",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ForEach Batch Run Information",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[SetBatchStatus]",
+					"storedProcedureParameters": {
+						"PFrequency": {
+							"value": {
+								"value": "@variables('v_frequency')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PSystemCode": {
+							"value": {
+								"value": "@variables('v_systemcode')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_asql_data_engineering_metadata",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"variables": {
+			"v_frequency": {
+				"type": "String",
+				"defaultValue": "DAILY"
+			},
+			"v_systemcode": {
+				"type": "String",
+				"defaultValue": "OWS"
+			}
+		},
+		"folder": {
+			"name": "orchestration"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-05-04T08:44:04Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
