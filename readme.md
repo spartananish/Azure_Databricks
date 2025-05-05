@@ -17,3 +17,19 @@ Loading multiple tables from a database dynamically
 Ingesting files from various folders or storage accounts
 
 Managing incremental data loads using watermarks or timestamps
+
+
+Steps to Publish Pipelines from GitHub to ADF Live Environment
+Step 1: Connect ADF to your GitHub repository (if not already connected)
+
+(1) Go to your ADF studio: https://adf.azure.com/
+
+(2) Open your Data Factory.
+
+(3) Click on the Manage tab (gear icon on the left).
+
+(4) Under Git configuration, click Set up code repository.
+
+(5) Choose GitHub, authorize access, select the repo, collaboration branch, and root folder.
+
+✅ After this, ADF studio switches to the Git mode — changes are not deployed to live until you explicitly publish.
